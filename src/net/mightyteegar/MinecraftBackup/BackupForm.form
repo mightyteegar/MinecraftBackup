@@ -157,6 +157,7 @@
         <Property name="label" type="java.lang.String" value="Change Savepath"/>
       </Properties>
       <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnChangeSavepathMouseClicked"/>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnChangeSavepathActionPerformed"/>
       </Events>
     </Component>
@@ -239,6 +240,7 @@
         <Property name="text" type="java.lang.String" value="Change"/>
       </Properties>
       <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnBackupLocationMouseClicked"/>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBackupLocationActionPerformed"/>
       </Events>
     </Component>
@@ -297,6 +299,9 @@
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Select/Deselect All"/>
       </Properties>
+      <Events>
+        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="chkSelectAllItemStateChanged"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lblBackupFileInfo">
       <Properties>

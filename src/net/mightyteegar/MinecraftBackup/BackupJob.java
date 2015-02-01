@@ -49,6 +49,10 @@ public class BackupJob {
     
     public void exeBackupSaves() {
         
+        if (this.fileScheme == 1) {
+            // 1 = single archive backup
+            
+        }
         /**
          * check backFileName:
          * if backupScheme = 0

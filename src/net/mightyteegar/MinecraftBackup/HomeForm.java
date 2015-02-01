@@ -6,6 +6,14 @@
 
 package net.mightyteegar.MinecraftBackup;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import javax.imageio.ImageIO;
+
 /**
  *
  * @author dave baker
@@ -17,6 +25,8 @@ public class HomeForm extends javax.swing.JFrame {
      */
     public HomeForm() {
         initComponents();
+        
+        new MinecraftBackup().jframeInit(this);
         
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -34,6 +44,9 @@ public class HomeForm extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(HomeForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        
+        pack();
+        setLocationRelativeTo(null);  // *** this will center your app ***
     }
 
     /**
@@ -55,6 +68,7 @@ public class HomeForm extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setIconImages(null);
 
         mbTitleImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mcbackup_header.png"))); // NOI18N
 

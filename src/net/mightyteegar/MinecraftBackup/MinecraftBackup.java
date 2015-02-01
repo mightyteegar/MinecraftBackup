@@ -6,14 +6,19 @@
  */
 package net.mightyteegar.MinecraftBackup;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 import net.mightyteegar.MinecraftBackup.BackupForm;
 import net.mightyteegar.MinecraftBackup.HomeForm;
 
@@ -24,7 +29,11 @@ import net.mightyteegar.MinecraftBackup.HomeForm;
 public class MinecraftBackup  {
     
     private final String SYSTEM_OS = System.getProperty("os.name");
+    private final String MCBACKUP_VERSION_NUM = "0.1";
+    private final String MCBACKUP_TITLE = "Minecraft Backup v0.1";
+    
     private String mcSavePath = new String();
+    
 
     public String getMcSavePath() {
         return mcSavePath;
@@ -34,11 +43,29 @@ public class MinecraftBackup  {
         this.mcSavePath = mcSavePath;
     }
     
+    public void jframeInit(JFrame jf) {
+        BufferedImage bi = null;
+        try {
+            
+            URL imgURL = getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mc_backup_icon_master_H32.png");
+            bi = ImageIO.read(imgURL);
+        }
+        
+        catch (FileNotFoundException fe) {
+            System.out.println("Icon file not found");
+        }
+        catch (IOException e) {
+            // exceptions
+        }
+        
+        jf.setIconImage(bi);
+        jf.setTitle(this.MCBACKUP_TITLE);
+    }
+    
     public void showBackupForm(MinecraftBackup mb) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 BackupForm bf = new BackupForm();
-                
                 bf.setVisible(true);
             }
         });
@@ -92,6 +119,18 @@ public class MinecraftBackup  {
         }
         
         return saves;
+    }
+    
+    public void textFieldHandleError(JTextField txf, JLabel lbl, String lblError) {
+        txf.setBackground(Color.pink);
+        lbl.setForeground(Color.red);
+        lbl.setText(lblError);
+        System.out.println(txf.getText() + ": " + lblError);
+    }
+    
+    public boolean inspectMcSavePath(Path p) {
+        
+        return true;
     }
     
     

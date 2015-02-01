@@ -6,14 +6,19 @@
 package net.mightyteegar.MinecraftBackup;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 
 /**
@@ -25,6 +30,8 @@ public class BackupForm extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
+    
     public BackupForm() {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -52,10 +59,13 @@ public class BackupForm extends javax.swing.JFrame {
         initComponents();
         
         MinecraftBackup mb = new MinecraftBackup();
+        mb.jframeInit(this);
         setTxfSavesPathText(mb.getMcSavePath());
         setSavePathInfo(1);
         setSaveCheckboxes(mb.readSavePath());
         
+        pack();
+        setLocationRelativeTo(null);  // *** this will center your app ***
         setVisible(true);
         mb.printSysvars();
     }
@@ -91,9 +101,11 @@ public class BackupForm extends javax.swing.JFrame {
     
    public void setSaveCheckboxes(ArrayList<String> saves) {
        int i = 0; 
+       List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
        for (String save : saves) {
             JCheckBox jcbx = new JCheckBox(save);
             this.jpnlSubSelectSavefiles.add(jcbx);
+            this.listOfSaves.add(jcbx);
             jcbx.setSelected(true);
             jcbx.setVisible(true);
         }
@@ -156,6 +168,11 @@ public class BackupForm extends javax.swing.JFrame {
         });
 
         btnChangeSavepath.setLabel("Change Savepath");
+        btnChangeSavepath.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnChangeSavepathMouseClicked(evt);
+            }
+        });
         btnChangeSavepath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnChangeSavepathActionPerformed(evt);
@@ -195,6 +212,11 @@ public class BackupForm extends javax.swing.JFrame {
         });
 
         btnBackupLocation.setText("Change");
+        btnBackupLocation.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnBackupLocationMouseClicked(evt);
+            }
+        });
         btnBackupLocation.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBackupLocationActionPerformed(evt);
@@ -228,6 +250,11 @@ public class BackupForm extends javax.swing.JFrame {
         chkSelectAll.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         chkSelectAll.setSelected(true);
         chkSelectAll.setText("Select/Deselect All");
+        chkSelectAll.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chkSelectAllItemStateChanged(evt);
+            }
+        });
 
         lblBackupFileInfo.setFont(new java.awt.Font("Tahoma", 2, 12)); // NOI18N
         lblBackupFileInfo.setText(" ");
@@ -359,11 +386,36 @@ public class BackupForm extends javax.swing.JFrame {
             formChecksCleared = false;
         }
         
-        Path p = Paths.get(this.txfSavesPath.getText());
-        if (!Files.exists(p)) {
+        Path sp = Paths.get(this.txfSavesPath.getText());
+        if (!Files.exists(sp)) {
             this.txfSavesPath.setBackground(Color.PINK);
             this.setSavePathInfo(4);
             formChecksCleared = false;
+        }
+        
+        
+        try {
+            Path bp = Paths.get(this.txfBackupLocation.getText());
+            Files.createFile(bp);
+            Files.isWritable(bp);
+            Files.deleteIfExists(bp);
+            System.out.println("Everything is awesome");
+        }
+        
+        catch (InvalidPathException pe) {
+            String err = "Invalid backup file path, make sure the path doesn't contain illegal characters";
+            new MinecraftBackup().textFieldHandleError(this.txfBackupLocation,this.lblBackupFileInfo,err);
+            
+        }
+        
+        catch (IOException e) {
+            // do some catching
+            String err = "Cannot write to specified backup file location, choose a different path";
+            new MinecraftBackup().textFieldHandleError(this.txfBackupLocation,this.lblBackupFileInfo,err);
+            
+        }
+        finally {
+            System.out.println("------------");
         }
         
     }//GEN-LAST:event_btnStartBackupMouseClicked
@@ -379,6 +431,52 @@ public class BackupForm extends javax.swing.JFrame {
         this.txfSavesPath.setBackground(Color.white);
         this.lblSavePathInfo.setText(null);
     }//GEN-LAST:event_txfSavesPathFocusGained
+
+    private void chkSelectAllItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chkSelectAllItemStateChanged
+        // TODO add your handling code here:
+        if (this.chkSelectAll.isSelected()) {
+            for (JCheckBox jc : this.listOfSaves) {
+                jc.setSelected(true);
+            }
+        }
+        else {
+            for (JCheckBox jc : this.listOfSaves) {
+                jc.setSelected(false);
+            }
+        }
+    }//GEN-LAST:event_chkSelectAllItemStateChanged
+
+    private void btnChangeSavepathMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnChangeSavepathMouseClicked
+        // TODO add your handling code here:
+        JFileChooser jc = new JFileChooser();
+        jc.setPreferredSize(new Dimension(700,400));
+        jc.setDialogTitle("Locate your Minecraft save file folder");
+        jc.setDialogType(JFileChooser.OPEN_DIALOG);
+        jc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        
+        int returnVal = jc.showOpenDialog(BackupForm.this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            this.txfSavesPath.setText(jc.getSelectedFile().toPath().toString());
+        }
+        
+        
+    }//GEN-LAST:event_btnChangeSavepathMouseClicked
+
+    private void btnBackupLocationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBackupLocationMouseClicked
+        // TODO add your handling code here:
+        JFileChooser jc = new JFileChooser();
+        jc.setPreferredSize(new Dimension(700,400));
+        jc.setDialogTitle("Minecraft backup archive location");
+        jc.setDialogType(JFileChooser.SAVE_DIALOG);
+        jc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        
+        int returnVal = jc.showSaveDialog(BackupForm.this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            this.txfBackupLocation.setText(jc.getSelectedFile().toPath().toString());
+        }
+    }//GEN-LAST:event_btnBackupLocationMouseClicked
 
     /**
      * @param args the command line arguments
