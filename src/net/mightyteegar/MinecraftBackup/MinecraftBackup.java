@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import net.mightyteegar.MinecraftBackup.BackupForm;
 import net.mightyteegar.MinecraftBackup.HomeForm;
 
@@ -140,11 +141,15 @@ public class MinecraftBackup  {
     public static void main(String[] args) {
         //launch(args);
         
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                HomeForm hf = new HomeForm();
+                hf.setVisible(true);
+      }
+    });
+  
         
-        MinecraftBackup mb = new MinecraftBackup();
-        HomeForm hf = new HomeForm();
-        
-        hf.setVisible(true);
+       
         
         /**
         

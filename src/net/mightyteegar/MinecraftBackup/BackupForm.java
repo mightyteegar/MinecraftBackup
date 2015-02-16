@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -16,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -400,6 +403,7 @@ public class BackupForm extends javax.swing.JFrame {
             Files.isWritable(bp);
             Files.deleteIfExists(bp);
             System.out.println("Everything is awesome");
+            
         }
         
         catch (InvalidPathException pe) {
