@@ -25,7 +25,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author dave baker
  */
-public final class BackupJob {
+public final class BackupJob implements Runnable {
     
     private Path savesLocation;
     private String backupFilePath;
@@ -129,6 +129,10 @@ public final class BackupJob {
          * */
         return true;
         
+    }
+    
+    public void run() {
+        // run the code
     }
     
 }
