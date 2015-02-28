@@ -145,8 +145,8 @@ public class MinecraftBackup  {
             public void run() {
                 HomeForm hf = new HomeForm();
                 hf.setVisible(true);
-      }
-    });
+            }
+          });
   
         
        

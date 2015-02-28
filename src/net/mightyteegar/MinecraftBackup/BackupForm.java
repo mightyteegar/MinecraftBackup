@@ -11,18 +11,30 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import static java.nio.file.FileVisitResult.CONTINUE;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -33,6 +45,7 @@ public class BackupForm extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    private final BackupMonitor backupMonitor;
     List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
     
     public BackupForm() {
@@ -60,7 +73,8 @@ public class BackupForm extends javax.swing.JFrame {
         }
         //</editor-fold>
         initComponents();
-        
+        jprgBackupProgress.setVisible(false);
+        this.backupMonitor = new BackupMonitor();
         MinecraftBackup mb = new MinecraftBackup();
         mb.jframeInit(this);
         setTxfSavesPathText(mb.getMcSavePath());
@@ -69,8 +83,10 @@ public class BackupForm extends javax.swing.JFrame {
         
         pack();
         setLocationRelativeTo(null);  // *** this will center your app ***
+        
         setVisible(true);
-        mb.printSysvars();
+        
+        
     }
 
     public void setTxfSavesPathText(String text) {
@@ -101,8 +117,7 @@ public class BackupForm extends javax.swing.JFrame {
         this.lblSavePathInfo.setText(savePathInfo);
     }
     
-    
-   public void setSaveCheckboxes(ArrayList<String> saves) {
+    public void setSaveCheckboxes(ArrayList<String> saves) {
        int i = 0; 
        List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
        for (String save : saves) {
@@ -114,6 +129,227 @@ public class BackupForm extends javax.swing.JFrame {
         }
         
        System.out.println("New checkbox created");
+    }
+    
+    
+      
+    final class BackupMonitor {
+        
+        private int totalFiles;
+        private int runningFilesCount;
+        private Path currentFile;
+
+        public Path getCurrentFile() {
+            return currentFile;
+        }
+
+        public void setCurrentFile(Path currentFile) {
+            this.currentFile = currentFile;
+        }
+
+        public int getTotalFiles() {
+            return totalFiles;
+        }
+
+        public void setTotalFiles(int totalFiles) {
+            this.totalFiles = totalFiles;
+        }
+
+        public int getRunningFilesCount() {
+            return runningFilesCount;
+        }
+
+        public void setRunningFilesCount(int increment) {
+            this.runningFilesCount = this.runningFilesCount + increment;
+        }
+        
+    }
+    
+    class BackupJob extends SimpleFileVisitor<Path> implements Runnable {
+        private Path savesLocation;
+        private String backupFilePath;
+        private int fileScheme;
+        private String compressMethod;
+        private String fileExtension;
+        public BackupMonitor backupMonitor;
+        
+        public BackupJob(
+                Path savesLocation, 
+                String backupFilePath,
+                BackupMonitor bm) {
+                    this.setSavesLocation(savesLocation);
+                    this.setBackupFilePath(backupFilePath);
+                    this.setFileScheme(1);
+                    this.setCompressMethod("zip");
+                    this.setBackupMonitor(bm);
+                }
+
+        public BackupJob(
+                Path savesLocation, 
+                String backupFilePath, 
+                int fileScheme,
+                BackupMonitor bm) {
+                    this.setSavesLocation(savesLocation);
+                    this.setBackupFilePath(backupFilePath);
+                    this.setFileScheme(fileScheme);
+                    this.setCompressMethod("zip");
+                    this.setBackupMonitor(bm);
+                }
+
+        public BackupJob(
+                Path savesLocation, 
+                String backupFilePath, 
+                int fileScheme, 
+                String compressMethod,
+                BackupMonitor bm) {
+                    this.setSavesLocation(savesLocation);
+                    this.setBackupFilePath(backupFilePath);
+                    this.setFileScheme(fileScheme);
+                    this.setCompressMethod(compressMethod);
+                    this.setBackupMonitor(bm);
+                }
+
+        public String getBackupFilePath() {
+            return backupFilePath;
+        }
+
+        public void setBackupFilePath(String backupFilePath) {
+            this.backupFilePath = backupFilePath;
+        }    
+
+        public String getFileExtension() {
+            return fileExtension;
+        }
+
+        public void setFileExtension(String fileExtension) {
+            this.fileExtension = fileExtension;
+        }
+
+        public Path getSavesLocation() {
+            return savesLocation;
+        }
+
+        public void setSavesLocation(Path savesLocation) {
+            this.savesLocation = savesLocation;
+        }
+
+        public int getFileScheme() {
+            return fileScheme;
+        }
+
+        public void setFileScheme(int fileScheme) {
+            this.fileScheme = fileScheme;
+        }
+
+        public String getCompressMethod() {
+            return compressMethod;
+        }
+
+        public void setCompressMethod(String compressMethod) {
+            this.compressMethod = compressMethod;
+        }
+
+        public BackupMonitor getBackupMonitor() {
+            return backupMonitor;
+        }
+
+        public void setBackupMonitor(BackupMonitor backupMonitor) {
+            this.backupMonitor = backupMonitor;
+        }
+        
+        private volatile boolean isRunning = true;
+        
+        public void kill() {
+            isRunning = false;
+        }
+
+        public FileVisitResult preVisitDirectory(Path p, BasicFileAttributes attrs) throws IOException {
+
+            Path zipFilePath = Paths.get(this.getBackupFilePath());
+            URI zipUri = URI.create("jar:" + zipFilePath.toUri().toString());
+            Map<String, String> env = new HashMap<>();
+            env.put("create", "true");
+
+            if (p.equals(this.getSavesLocation())) {
+                // don't do anything
+            }
+            else {
+                String pathToAdd = p.toString().replace(this.getSavesLocation().toString(), "").replace("\\", "/");
+                try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+                    Path p1 = zipfs.getPath(pathToAdd);
+                    Files.createDirectories(p1);
+                    
+                }
+
+            }
+
+            return CONTINUE;
+        }
+
+        public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
+
+            Path zipFilePath = Paths.get(this.getBackupFilePath());
+            URI zipUri = URI.create("jar:" + zipFilePath.toUri().toString());
+            Map<String, String> env = new HashMap<>();
+            env.put("create", "true");
+            
+            System.out.println("SOURCE DIR: " + p.toString());
+
+            if (p.equals(this.getSavesLocation())) {
+                // don't do anything
+            }
+            else {
+                if (Files.isRegularFile(p)) {
+                    String pathToAdd = p.toString().replace(this.getSavesLocation().toString(), "").replace("\\", "/");
+                    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+                        Path p1 = zipfs.getPath(pathToAdd);
+                        if (Files.exists(p1)) {
+                            Files.delete(p1);
+                        }
+                        Files.copy(p,p1);
+                        
+                    }
+                }
+
+
+            }
+
+            return CONTINUE;
+        }
+
+        public void run() {
+            while (isRunning) {
+                System.out.println("ZIPPATH: " + this.getBackupFilePath());
+                if (this.getFileScheme() == 1) {
+
+                    // 1 = single archive backup
+
+                    switch (this.getCompressMethod().toLowerCase()) {
+                        case "zip": 
+                            this.setFileExtension("zip");
+                            break;
+                        case "gzip":
+                            this.setFileExtension("gz");
+                            break;
+                        default:
+                            this.setFileExtension("zip");
+                            break;
+                    }
+
+                    try {
+                        synchronized (backupMonitor) {
+                            Files.walkFileTree(this.getSavesLocation(), this);
+                        }
+
+                    } catch (IOException ex) {
+                        // catch 
+                    } 
+
+                }
+                this.kill();
+            }
+            
+        }
     }
    
     /**
@@ -147,6 +383,8 @@ public class BackupForm extends javax.swing.JFrame {
         mbTitleImage = new javax.swing.JLabel();
         chkSelectAll = new javax.swing.JCheckBox();
         lblBackupFileInfo = new javax.swing.JLabel();
+        jprgBackupProgress = new javax.swing.JProgressBar();
+        lblBackupProgress = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Minecraft Backup v0.1");
@@ -225,9 +463,9 @@ public class BackupForm extends javax.swing.JFrame {
         });
 
         btnStartBackup.setText("Start backup");
-        btnStartBackup.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnStartBackupMouseClicked(evt);
+        btnStartBackup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStartBackupActionPerformed(evt);
             }
         });
 
@@ -264,6 +502,12 @@ public class BackupForm extends javax.swing.JFrame {
         lblBackupFileInfo.setMinimumSize(new java.awt.Dimension(30, 0));
         lblBackupFileInfo.setRequestFocusEnabled(false);
 
+        jprgBackupProgress.setEnabled(false);
+        jprgBackupProgress.setFocusable(false);
+        jprgBackupProgress.setIndeterminate(true);
+
+        lblBackupProgress.setText("Backing up file <filename>...");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -274,7 +518,12 @@ public class BackupForm extends javax.swing.JFrame {
                     .addComponent(lblBackupFileInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(lblBackupProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                                    .addComponent(jprgBackupProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addComponent(lblSavesPath)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(txfSavesPath, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -348,7 +597,11 @@ public class BackupForm extends javax.swing.JFrame {
                 .addGap(5, 5, 5)
                 .addComponent(lblBackupFileInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblBackupProgress))
+                    .addComponent(jprgBackupProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(105, Short.MAX_VALUE))
         );
 
@@ -370,57 +623,6 @@ public class BackupForm extends javax.swing.JFrame {
     private void btnBackupLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackupLocationActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnBackupLocationActionPerformed
-
-    private void btnStartBackupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnStartBackupMouseClicked
-        // TODO add your handling code here:
-        boolean formChecksCleared = true;
-        
-        if (this.txfSavesPath.getText().replace(" ", "").isEmpty()) {
-            this.txfSavesPath.setBackground(Color.PINK);
-            this.setSavePathInfo(3);
-            formChecksCleared = false;
-        }
-        if (this.txfBackupLocation.getText().isEmpty()) {
-            this.txfBackupLocation.setBackground(Color.PINK);
-            this.lblBackupFileInfo.setForeground(Color.red);
-            this.lblBackupFileInfo.setText("Backup file location cannot be blank");
-            formChecksCleared = false;
-        }
-        
-        Path sp = Paths.get(this.txfSavesPath.getText());
-        if (!Files.exists(sp)) {
-            this.txfSavesPath.setBackground(Color.PINK);
-            this.setSavePathInfo(4);
-            formChecksCleared = false;
-        }
-        
-        
-        try {
-            Path bp = Paths.get(this.txfBackupLocation.getText());
-            Files.createFile(bp);
-            Files.isWritable(bp);
-            Files.deleteIfExists(bp);
-            System.out.println("Everything is awesome");
-            
-        }
-        
-        catch (InvalidPathException pe) {
-            String err = "Invalid backup file path, make sure the path doesn't contain illegal characters";
-            new MinecraftBackup().textFieldHandleError(this.txfBackupLocation,this.lblBackupFileInfo,err);
-            
-        }
-        
-        catch (IOException e) {
-            // do some catching
-            String err = "Cannot write to specified backup file location, choose a different path";
-            new MinecraftBackup().textFieldHandleError(this.txfBackupLocation,this.lblBackupFileInfo,err);
-            
-        }
-        finally {
-            System.out.println("------------");
-        }
-        
-    }//GEN-LAST:event_btnStartBackupMouseClicked
 
     private void txfBackupLocationFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txfBackupLocationFocusGained
         // TODO add your handling code here:
@@ -480,6 +682,62 @@ public class BackupForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnBackupLocationMouseClicked
 
+    private void btnStartBackupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartBackupActionPerformed
+        boolean formChecksCleared = true;
+        
+        synchronized (this.backupMonitor) {
+            btnStartBackup.setEnabled(false);
+            btnStartBackup.setText("Backup in progress");
+            
+        }
+        
+        if (this.txfSavesPath.getText().replace(" ", "").isEmpty()) {
+            this.txfSavesPath.setBackground(Color.PINK);
+            this.setSavePathInfo(3);
+            formChecksCleared = false;
+        }
+        if (this.txfBackupLocation.getText().isEmpty()) {
+            this.txfBackupLocation.setBackground(Color.PINK);
+            this.lblBackupFileInfo.setForeground(Color.red);
+            this.lblBackupFileInfo.setText("Backup file location cannot be blank");
+            formChecksCleared = false;
+        }
+        
+        Path sp = Paths.get(this.txfSavesPath.getText());
+        if (!Files.exists(sp)) {
+            this.txfSavesPath.setBackground(Color.PINK);
+            this.setSavePathInfo(4);
+            formChecksCleared = false;
+        }
+
+        if (formChecksCleared) {
+            
+            try {
+                
+                Path bp = Paths.get(this.txfBackupLocation.getText());
+                BackupJob backupJob = new BackupJob(Paths.get(this.txfSavesPath.getText()),this.txfBackupLocation.getText(),this.backupMonitor);
+                Thread bjThread = new Thread(backupJob, "backupJob");
+                
+                bjThread.start();
+                System.out.println("COMPLETE: Backup job successful.");
+                
+            }
+
+            catch (InvalidPathException pe) {
+                
+                String err = "Invalid backup file path, make sure the path doesn't contain illegal characters";
+                new MinecraftBackup().textFieldHandleError(this.txfBackupLocation,this.lblBackupFileInfo,err);
+
+            }
+            
+            finally {
+                System.out.println("------------");
+                
+            }
+            
+        }
+    }//GEN-LAST:event_btnStartBackupActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -493,10 +751,12 @@ public class BackupForm extends javax.swing.JFrame {
     private javax.swing.JComboBox cbxCompressMethod;
     private javax.swing.JCheckBox chkSelectAll;
     private javax.swing.JPanel jpnlSubSelectSavefiles;
+    private javax.swing.JProgressBar jprgBackupProgress;
     private javax.swing.JScrollPane jscpSelectSavefiles;
     private javax.swing.JLabel lblArchiveOpts;
     private javax.swing.JLabel lblBackupFileInfo;
     private javax.swing.JLabel lblBackupLocation;
+    private javax.swing.JLabel lblBackupProgress;
     private javax.swing.JLabel lblCompressMethod;
     private javax.swing.JLabel lblCompressMethodInfo;
     private javax.swing.JLabel lblSavePathInfo;
