@@ -778,7 +778,6 @@ public class BackupForm extends javax.swing.JFrame {
                 Path bp = Paths.get(this.txfBackupLocation.getText());
                 BackupJob backupJob = new BackupJob(Paths.get(this.txfSavesPath.getText()),this.txfBackupLocation.getText(),this.backupMonitor);
                 
-                
                 Thread bjThread = new Thread(backupJob, "backupJob");
                 Thread bmThread = new Thread(this.backupMonitor, "backupMonitor");
                 
