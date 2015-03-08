@@ -7,12 +7,8 @@ package net.mightyteegar.MinecraftBackup;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
-import static java.lang.Thread.sleep;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -28,13 +24,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+
+        
 
 /**
  *
@@ -74,7 +74,7 @@ public class BackupForm extends javax.swing.JFrame {
         //</editor-fold>
         initComponents();
         jprgBackupProgress.setVisible(false);
-        this.backupMonitor = new BackupMonitor();
+        this.backupMonitor = new BackupMonitor(new BackupJobQueue(),jprgBackupProgress);
         MinecraftBackup mb = new MinecraftBackup();
         mb.jframeInit(this);
         setTxfSavesPathText(mb.getMcSavePath());
@@ -95,7 +95,6 @@ public class BackupForm extends javax.swing.JFrame {
     
     public void setSavePathInfo(int i) {
         String savePathInfo = new String();
-        System.out.println(i);
         switch (i) {
             case 1: savePathInfo = "There appear to be Minecraft save files at the location "
                     + "shown above.  Click the \"Change Savepath\" button to "
@@ -127,51 +126,31 @@ public class BackupForm extends javax.swing.JFrame {
             jcbx.setSelected(true);
             jcbx.setVisible(true);
         }
-        
-       System.out.println("New checkbox created");
+       
     }
     
-    
-      
-    final class BackupMonitor {
+    class BackupJobQueue extends LinkedBlockingQueue {
+        private boolean isRunning = true;
         
-        private int totalFiles;
-        private int runningFilesCount;
-        private Path currentFile;
-
-        public Path getCurrentFile() {
-            return currentFile;
+        public boolean isRunning() {
+            return isRunning;
         }
-
-        public void setCurrentFile(Path currentFile) {
-            this.currentFile = currentFile;
-        }
-
-        public int getTotalFiles() {
-            return totalFiles;
-        }
-
-        public void setTotalFiles(int totalFiles) {
-            this.totalFiles = totalFiles;
-        }
-
-        public int getRunningFilesCount() {
-            return runningFilesCount;
-        }
-
-        public void setRunningFilesCount(int increment) {
-            this.runningFilesCount = this.runningFilesCount + increment;
+        
+        public void stopRunning() {
+            isRunning = false;
         }
         
     }
     
     class BackupJob extends SimpleFileVisitor<Path> implements Runnable {
+        
         private Path savesLocation;
         private String backupFilePath;
         private int fileScheme;
         private String compressMethod;
         private String fileExtension;
         public BackupMonitor backupMonitor;
+        public BackupJobQueue jobQueue;
         
         public BackupJob(
                 Path savesLocation, 
@@ -182,6 +161,7 @@ public class BackupForm extends javax.swing.JFrame {
                     this.setFileScheme(1);
                     this.setCompressMethod("zip");
                     this.setBackupMonitor(bm);
+                    this.jobQueue = bm.jobQueue;
                 }
 
         public BackupJob(
@@ -194,6 +174,7 @@ public class BackupForm extends javax.swing.JFrame {
                     this.setFileScheme(fileScheme);
                     this.setCompressMethod("zip");
                     this.setBackupMonitor(bm);
+                    this.jobQueue = bm.jobQueue;
                 }
 
         public BackupJob(
@@ -207,6 +188,7 @@ public class BackupForm extends javax.swing.JFrame {
                     this.setFileScheme(fileScheme);
                     this.setCompressMethod(compressMethod);
                     this.setBackupMonitor(bm);
+                    this.jobQueue = bm.jobQueue;
                 }
 
         public String getBackupFilePath() {
@@ -257,12 +239,11 @@ public class BackupForm extends javax.swing.JFrame {
             this.backupMonitor = backupMonitor;
         }
         
-        private volatile boolean isRunning = true;
-        
+          
         public void kill() {
-            isRunning = false;
+            jobQueue.stopRunning();
         }
-
+        
         public FileVisitResult preVisitDirectory(Path p, BasicFileAttributes attrs) throws IOException {
 
             Path zipFilePath = Paths.get(this.getBackupFilePath());
@@ -280,7 +261,7 @@ public class BackupForm extends javax.swing.JFrame {
                     Files.createDirectories(p1);
                     
                 }
-
+                
             }
 
             return CONTINUE;
@@ -307,7 +288,12 @@ public class BackupForm extends javax.swing.JFrame {
                             Files.delete(p1);
                         }
                         Files.copy(p,p1);
+                        backupMonitor.setRunningFileCount(1);
                         
+                        try {
+                            this.jobQueue.put(1);
+                        } catch (InterruptedException ex) {}
+
                     }
                 }
 
@@ -318,7 +304,11 @@ public class BackupForm extends javax.swing.JFrame {
         }
 
         public void run() {
-            while (isRunning) {
+            
+            backupMonitor.preCountFiles(this.getSavesLocation().toFile());
+            // pass total files to jobQueue
+            
+            while (jobQueue.isRunning()) {
                 System.out.println("ZIPPATH: " + this.getBackupFilePath());
                 if (this.getFileScheme() == 1) {
 
@@ -340,15 +330,93 @@ public class BackupForm extends javax.swing.JFrame {
                         synchronized (backupMonitor) {
                             Files.walkFileTree(this.getSavesLocation(), this);
                         }
+                        
 
-                    } catch (IOException ex) {
-                        // catch 
-                    } 
+                    } catch (IOException ex) {} 
+                    jobQueue.stopRunning();
 
                 }
-                this.kill();
+                
             }
+            System.out.println("Backup job is finished");
+            btnStartBackup.setEnabled(true);
+            btnStartBackup.setText("Start Backup");
+            backupMonitor.progressBar.setVisible(false);
+            backupMonitor.progressBar.setValue(0);
             
+        }
+    }
+    
+    final class BackupMonitor implements Runnable {
+        
+        private final BackupJobQueue jobQueue;
+        private int totalFiles;
+        private int runningFileCount;
+        private final JProgressBar progressBar;
+        
+        // constructor
+        
+        public BackupMonitor(BackupJobQueue jobQueue,
+                             JProgressBar progressBar) {
+            this.jobQueue = jobQueue;
+            this.progressBar = progressBar;
+            this.runningFileCount = 0;
+        }
+
+        public int getTotalFiles() {
+            return totalFiles;
+        }
+
+        public void setTotalFiles(int totalFiles) {
+            this.totalFiles = totalFiles;
+        }
+
+        public int getRunningFileCount() {
+            return runningFileCount;
+        }
+
+        public void setRunningFileCount(int increment) {
+            this.runningFileCount += increment;
+        }
+        
+        public int preCountFiles(File fileStartPath) {
+            
+            int count = 0;
+            for (File file : fileStartPath.listFiles()) {
+
+                if (file.isFile()) {
+                    count++;
+                }
+                if (file.isDirectory()) {
+                    if (!file.canExecute()) {
+                      System.out.println(file.getAbsolutePath() + ": Error, access denied to this directory");
+                      // skip it
+                    }
+                    else {
+                        count += preCountFiles(file);
+                    }
+                }
+            }
+                        
+            progressBar.setIndeterminate(false);
+            progressBar.setMaximum(count);
+            progressBar.setStringPainted(true);
+            this.setTotalFiles(count);
+            System.out.println("Expecting " + count + " total files to be backed up");
+            return count;
+            
+        }
+        
+        public void run() {
+            while (jobQueue.isRunning()) {
+                try {
+                    jobQueue.take();
+                    progressBar.setValue(getRunningFileCount());
+                    String progressString = "Backed up " + getRunningFileCount() + " of " + getTotalFiles() + " files ";
+                    progressBar.setString(progressString);
+                }
+                catch (InterruptedException ix) {}
+            }
         }
     }
    
@@ -384,7 +452,6 @@ public class BackupForm extends javax.swing.JFrame {
         chkSelectAll = new javax.swing.JCheckBox();
         lblBackupFileInfo = new javax.swing.JLabel();
         jprgBackupProgress = new javax.swing.JProgressBar();
-        lblBackupProgress = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Minecraft Backup v0.1");
@@ -504,9 +571,6 @@ public class BackupForm extends javax.swing.JFrame {
 
         jprgBackupProgress.setEnabled(false);
         jprgBackupProgress.setFocusable(false);
-        jprgBackupProgress.setIndeterminate(true);
-
-        lblBackupProgress.setText("Backing up file <filename>...");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -521,9 +585,7 @@ public class BackupForm extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(lblBackupProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
-                                    .addComponent(jprgBackupProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(jprgBackupProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(lblSavesPath)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(txfSavesPath, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -598,9 +660,7 @@ public class BackupForm extends javax.swing.JFrame {
                 .addComponent(lblBackupFileInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblBackupProgress))
+                    .addComponent(btnStartBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jprgBackupProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(105, Short.MAX_VALUE))
         );
@@ -684,13 +744,7 @@ public class BackupForm extends javax.swing.JFrame {
 
     private void btnStartBackupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartBackupActionPerformed
         boolean formChecksCleared = true;
-        
-        synchronized (this.backupMonitor) {
-            btnStartBackup.setEnabled(false);
-            btnStartBackup.setText("Backup in progress");
-            
-        }
-        
+       
         if (this.txfSavesPath.getText().replace(" ", "").isEmpty()) {
             this.txfSavesPath.setBackground(Color.PINK);
             this.setSavePathInfo(3);
@@ -712,14 +766,24 @@ public class BackupForm extends javax.swing.JFrame {
 
         if (formChecksCleared) {
             
+            synchronized (this.backupMonitor) {
+                btnStartBackup.setEnabled(false);
+                btnStartBackup.setText("Backup in progress");
+                backupMonitor.progressBar.setVisible(true);
+
+            }
+            
             try {
                 
                 Path bp = Paths.get(this.txfBackupLocation.getText());
                 BackupJob backupJob = new BackupJob(Paths.get(this.txfSavesPath.getText()),this.txfBackupLocation.getText(),this.backupMonitor);
+                
+                
                 Thread bjThread = new Thread(backupJob, "backupJob");
+                Thread bmThread = new Thread(this.backupMonitor, "backupMonitor");
                 
                 bjThread.start();
-                System.out.println("COMPLETE: Backup job successful.");
+                bmThread.start();
                 
             }
 
@@ -756,7 +820,6 @@ public class BackupForm extends javax.swing.JFrame {
     private javax.swing.JLabel lblArchiveOpts;
     private javax.swing.JLabel lblBackupFileInfo;
     private javax.swing.JLabel lblBackupLocation;
-    private javax.swing.JLabel lblBackupProgress;
     private javax.swing.JLabel lblCompressMethod;
     private javax.swing.JLabel lblCompressMethodInfo;
     private javax.swing.JLabel lblSavePathInfo;
