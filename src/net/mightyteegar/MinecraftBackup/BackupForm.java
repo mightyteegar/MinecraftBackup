@@ -45,7 +45,7 @@ public class BackupForm extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
-    private final BackupMonitor backupMonitor;
+    
     List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
     
     public BackupForm() {
@@ -74,7 +74,7 @@ public class BackupForm extends javax.swing.JFrame {
         //</editor-fold>
         initComponents();
         jprgBackupProgress.setVisible(false);
-        this.backupMonitor = new BackupMonitor(new BackupJobQueue(),jprgBackupProgress);
+        
         MinecraftBackup mb = new MinecraftBackup();
         mb.jframeInit(this);
         setTxfSavesPathText(mb.getMcSavePath());
@@ -347,7 +347,7 @@ public class BackupForm extends javax.swing.JFrame {
         }
     }
     
-    final class BackupMonitor implements Runnable {
+    class BackupMonitor implements Runnable {
         
         private final BackupJobQueue jobQueue;
         private int totalFiles;
@@ -712,6 +712,7 @@ public class BackupForm extends javax.swing.JFrame {
 
     private void btnChangeSavepathMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnChangeSavepathMouseClicked
         // TODO add your handling code here:
+        
         JFileChooser jc = new JFileChooser();
         jc.setPreferredSize(new Dimension(700,400));
         jc.setDialogTitle("Locate your Minecraft save file folder");
@@ -744,7 +745,7 @@ public class BackupForm extends javax.swing.JFrame {
 
     private void btnStartBackupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartBackupActionPerformed
         boolean formChecksCleared = true;
-       
+        
         if (this.txfSavesPath.getText().replace(" ", "").isEmpty()) {
             this.txfSavesPath.setBackground(Color.PINK);
             this.setSavePathInfo(3);
@@ -766,23 +767,25 @@ public class BackupForm extends javax.swing.JFrame {
 
         if (formChecksCleared) {
             
-            synchronized (this.backupMonitor) {
-                btnStartBackup.setEnabled(false);
-                btnStartBackup.setText("Backup in progress");
-                backupMonitor.progressBar.setVisible(true);
-
-            }
             
+            btnStartBackup.setEnabled(false);
+            btnStartBackup.setText("Backup in progress");
+            
+
             try {
                 
                 Path bp = Paths.get(this.txfBackupLocation.getText());
-                BackupJob backupJob = new BackupJob(Paths.get(this.txfSavesPath.getText()),this.txfBackupLocation.getText(),this.backupMonitor);
+                
+                BackupMonitor backupMonitor = new BackupMonitor(new BackupJobQueue(),jprgBackupProgress);
+                BackupJob backupJob = new BackupJob(Paths.get(this.txfSavesPath.getText()),this.txfBackupLocation.getText(),backupMonitor);
                 
                 Thread bjThread = new Thread(backupJob, "backupJob");
-                Thread bmThread = new Thread(this.backupMonitor, "backupMonitor");
+                Thread bmThread = new Thread(backupMonitor, "backupMonitor");
                 
-                bjThread.start();
+                backupMonitor.progressBar.setVisible(true);
+                
                 bmThread.start();
+                bjThread.start();
                 
             }
 
@@ -793,10 +796,8 @@ public class BackupForm extends javax.swing.JFrame {
 
             }
             
-            finally {
-                System.out.println("------------");
-                
-            }
+            
+            
             
         }
     }//GEN-LAST:event_btnStartBackupActionPerformed
