@@ -60,56 +60,61 @@ public class HomeForm extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         mbTitleImage = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jbtnBackupForm = new javax.swing.JButton();
+        lblBackup = new javax.swing.JLabel();
+        lblBackupDesc = new javax.swing.JLabel();
+        jbtnRestoreForm = new javax.swing.JButton();
+        lblRestore = new javax.swing.JLabel();
+        lblRestoreDesc = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImages(null);
 
         mbTitleImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mcbackup_header.png"))); // NOI18N
 
-        jButton1.setBackground(new java.awt.Color(230, 245, 230));
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mc_backup_icon_master_H80.png"))); // NOI18N
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+        jbtnBackupForm.setBackground(new java.awt.Color(230, 245, 230));
+        jbtnBackupForm.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mc_backup_icon_master_H80.png"))); // NOI18N
+        jbtnBackupForm.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jbtnBackupForm.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jbtnBackupForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton1MouseClicked(evt);
+                jbtnBackupFormMouseClicked(evt);
             }
         });
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jbtnBackupForm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jbtnBackupFormActionPerformed(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("StenbergITC TT", 0, 48)); // NOI18N
-        jLabel1.setText("Backup");
+        lblBackup.setFont(new java.awt.Font("StenbergITC TT", 0, 48)); // NOI18N
+        lblBackup.setText("Backup");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 2, 14)); // NOI18N
-        jLabel2.setText("Create a backup of your Minecraft save files");
-        jLabel2.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblBackupDesc.setFont(new java.awt.Font("Tahoma", 2, 14)); // NOI18N
+        lblBackupDesc.setText("Create a backup of your Minecraft save files");
+        lblBackupDesc.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        jButton2.setBackground(new java.awt.Color(230, 230, 245));
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mc_restore_icon_master_H80.png"))); // NOI18N
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jbtnRestoreForm.setBackground(new java.awt.Color(230, 230, 245));
+        jbtnRestoreForm.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/mc_restore_icon_master_H80.png"))); // NOI18N
+        jbtnRestoreForm.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jbtnRestoreForm.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jbtnRestoreForm.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jbtnRestoreFormMouseClicked(evt);
+            }
+        });
+        jbtnRestoreForm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jbtnRestoreFormActionPerformed(evt);
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("StenbergITC TT", 0, 48)); // NOI18N
-        jLabel3.setText("Restore");
+        lblRestore.setFont(new java.awt.Font("StenbergITC TT", 0, 48)); // NOI18N
+        lblRestore.setText("Restore");
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 2, 14)); // NOI18N
-        jLabel4.setText("Restore Minecraft saves from a previous backup");
-        jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblRestoreDesc.setFont(new java.awt.Font("Tahoma", 2, 14)); // NOI18N
+        lblRestoreDesc.setText("Restore Minecraft saves from a previous backup");
+        lblRestoreDesc.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -121,14 +126,14 @@ public class HomeForm extends javax.swing.JFrame {
                     .addComponent(mbTitleImage)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jbtnBackupForm, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jbtnRestoreForm, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(lblBackup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblBackupDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblRestore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblRestoreDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(195, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -138,18 +143,18 @@ public class HomeForm extends javax.swing.JFrame {
                 .addComponent(mbTitleImage, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbtnBackupForm, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblBackup, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lblBackupDesc, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lblRestoreDesc, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbtnRestoreForm, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(179, Short.MAX_VALUE))
         );
 
@@ -167,19 +172,25 @@ public class HomeForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jbtnBackupFormActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnBackupFormActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jbtnBackupFormActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void jbtnRestoreFormActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRestoreFormActionPerformed
+        // TODO add your handling code here:       
+    }//GEN-LAST:event_jbtnRestoreFormActionPerformed
 
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+    private void jbtnBackupFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnBackupFormMouseClicked
         // TODO add your handling code here:
         new BackupForm().setVisible(true);
         this.setVisible(false);
-    }//GEN-LAST:event_jButton1MouseClicked
+    }//GEN-LAST:event_jbtnBackupFormMouseClicked
+
+    private void jbtnRestoreFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnRestoreFormMouseClicked
+        // TODO add your handling code here:
+        new RestoreForm().setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_jbtnRestoreFormMouseClicked
 
     /**
      * @param args the command line arguments
@@ -187,13 +198,13 @@ public class HomeForm extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton jbtnBackupForm;
+    private javax.swing.JButton jbtnRestoreForm;
+    private javax.swing.JLabel lblBackup;
+    private javax.swing.JLabel lblBackupDesc;
+    private javax.swing.JLabel lblRestore;
+    private javax.swing.JLabel lblRestoreDesc;
     private javax.swing.JLabel mbTitleImage;
     // End of variables declaration//GEN-END:variables
 }

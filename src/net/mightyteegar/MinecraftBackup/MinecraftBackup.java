@@ -72,6 +72,15 @@ public class MinecraftBackup  {
         });
     }
     
+    public void showRestoreForm(MinecraftBackup mb) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                RestoreForm rf = new RestoreForm();
+                rf.setVisible(true);
+            }
+        });
+    }
+    
     public MinecraftBackup() {
         if (SYSTEM_OS.contains("Windows 7")) {
             this.setMcSavePath(System.getenv("APPDATA") + "\\.minecraft\\saves");
@@ -87,10 +96,6 @@ public class MinecraftBackup  {
         }
     }
     
-    public void printSysvars() {
-        System.out.println(this.SYSTEM_OS);
-        System.out.println(this.mcSavePath);
-    }
     
     public ArrayList<String> readSavePath() {
         ArrayList<String> saves = new ArrayList();
