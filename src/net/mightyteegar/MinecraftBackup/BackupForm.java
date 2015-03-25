@@ -117,8 +117,6 @@ public class BackupForm extends javax.swing.JFrame {
     }
     
     public void setSaveCheckboxes(ArrayList<String> saves) {
-       int i = 0; 
-       List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
        for (String save : saves) {
             JCheckBox jcbx = new JCheckBox(save);
             this.jpnlSubSelectSavefiles.add(jcbx);
