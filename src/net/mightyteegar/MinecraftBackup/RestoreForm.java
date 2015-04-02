@@ -5,6 +5,7 @@
  */
 package net.mightyteegar.MinecraftBackup;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
@@ -24,8 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -45,7 +52,7 @@ public class RestoreForm extends javax.swing.JFrame {
         MinecraftBackup mb = new MinecraftBackup();
         mb.jframeInit(this);
         setTxfSavesPathText(mb.getMcSavePath());
-        
+        this.btnBeginRestore.setEnabled(false);
         pack();
         setLocationRelativeTo(null);  // *** this will center your app ***
         
@@ -57,7 +64,8 @@ public class RestoreForm extends javax.swing.JFrame {
     }
     
     public void setRestoreCheckboxes() {
-       
+        
+       this.jpnlSubSelectSavefiles.removeAll();
        for (JCheckBox saveBox : this.listOfSaves) {
            
            saveBox.setName(saveBox.getText());
@@ -70,25 +78,50 @@ public class RestoreForm extends javax.swing.JFrame {
         
     }
     
-    public class SaveFileReader extends SimpleFileVisitor<Path> implements Runnable {
-        
-        private RestoreForm rf;
-        private Path backupFile;
-        private ArrayList<Path> listOfSaves;
-        
-        public SaveFileReader(
-            RestoreForm rf,
-            Path backupFile) {
-            this.rf = rf;
-            this.backupFile = backupFile;
-        }
-         
-        public void run() {
+    public void doSavesRestore() throws IOException {
+        Path zipFilePath = Paths.get(txfRestoreSourceFile.getText());
+        Path restoreSavesPath = Paths.get(txfRestoreSavesPath.getText());
+        try (FileSystem zipfs = FileSystems.newFileSystem(zipFilePath, null)) {
+            Path zipStartPath = zipfs.getPath("/");
             
-        }
-        
-        
-        
+            boolean isOverwriteOk;
+            isOverwriteOk = false;
+            
+            savesLoop:
+            for (JCheckBox jc : this.listOfSaves) {
+                
+                Path jcTestPath = zipfs.getPath("/" + jc.getText());
+                if (Files.exists(jcTestPath)) {
+                    Path currRestorePath = Paths.get(restoreSavesPath.toString() + jcTestPath.toString());
+                    if (Files.exists(currRestorePath)) {
+                        if (!isOverwriteOk) {
+                            
+                            final JOptionPane joptConfirmOverwrite = new JOptionPane();
+                            Object[] options = {"Overwrite","Cancel"};
+                            int opt = joptConfirmOverwrite.showOptionDialog(
+                                    rf,
+                                    "You are about to restore one or more savefiles that already exist. Continue?",
+                                    "Confirm Overwrite",
+                                    JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.WARNING_MESSAGE,
+                                    null,
+                                    options,
+                                    options[1]);
+                            if (opt == 0) {
+                                isOverwriteOk = true;
+                                // start restoring the savefiles
+                            }
+                            if (opt == 1) {
+                                break savesLoop;
+                            };
+                            
+                                                      
+                        }
+                        System.out.println("RESTORE PATH EXISTS: " + currRestorePath.toString());
+                    }
+                }
+            }
+        } 
     }
     
     
@@ -107,11 +140,11 @@ public class RestoreForm extends javax.swing.JFrame {
         txfRestoreSourceFile = new javax.swing.JTextField();
         btnSelectSourceFile = new javax.swing.JButton();
         lblRestoreSourceDirections = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        jcbxSelectAllSaves = new javax.swing.JCheckBox();
         txfRestoreSavesPath = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        btnBeginRestore = new javax.swing.JButton();
         jscpSelectSavefiles = new javax.swing.JScrollPane();
         jpnlSubSelectSavefiles = new javax.swing.JPanel();
 
@@ -142,8 +175,18 @@ public class RestoreForm extends javax.swing.JFrame {
         lblRestoreSourceDirections.setFont(new java.awt.Font("Noto Sans", 2, 12)); // NOI18N
         lblRestoreSourceDirections.setText("Select a backup file to restore from");
 
-        jCheckBox1.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        jCheckBox1.setText("Select/Deselect All");
+        jcbxSelectAllSaves.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        jcbxSelectAllSaves.setText("Select/Deselect All");
+        jcbxSelectAllSaves.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jcbxSelectAllSavesItemStateChanged(evt);
+            }
+        });
+        jcbxSelectAllSaves.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcbxSelectAllSavesActionPerformed(evt);
+            }
+        });
 
         txfRestoreSavesPath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -161,8 +204,18 @@ public class RestoreForm extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Noto Sans", 2, 12)); // NOI18N
         jLabel1.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
 
-        jButton3.setFont(new java.awt.Font("Noto Sans", 1, 18)); // NOI18N
-        jButton3.setText("Begin Restore");
+        btnBeginRestore.setFont(new java.awt.Font("Noto Sans", 1, 18)); // NOI18N
+        btnBeginRestore.setText("Begin Restore");
+        btnBeginRestore.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnBeginRestoreMouseClicked(evt);
+            }
+        });
+        btnBeginRestore.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBeginRestoreActionPerformed(evt);
+            }
+        });
 
         jpnlSubSelectSavefiles.setName(""); // NOI18N
         jpnlSubSelectSavefiles.setLayout(new javax.swing.BoxLayout(jpnlSubSelectSavefiles, javax.swing.BoxLayout.PAGE_AXIS));
@@ -175,11 +228,11 @@ public class RestoreForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 679, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblRestoreSourceDirections)
                     .addComponent(jLabel1)
-                    .addComponent(jCheckBox1)
+                    .addComponent(jcbxSelectAllSaves)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jscpSelectSavefiles, javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
@@ -207,7 +260,7 @@ public class RestoreForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblRestoreSourceDirections)
                 .addGap(18, 18, 18)
-                .addComponent(jCheckBox1)
+                .addComponent(jcbxSelectAllSaves)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jscpSelectSavefiles, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -217,7 +270,7 @@ public class RestoreForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 71, Short.MAX_VALUE))
         );
 
@@ -251,9 +304,9 @@ public class RestoreForm extends javax.swing.JFrame {
         int returnVal = jc.showSaveDialog(RestoreForm.this);
         
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+            rf.listOfSaves.clear();
             txfRestoreSourceFile.setText(jc.getSelectedFile().getAbsolutePath());
             Path zipFilePath = Paths.get(txfRestoreSourceFile.getText());
-            System.out.println(zipFilePath.toString());
             try (FileSystem zipfs = FileSystems.newFileSystem(zipFilePath, null)) {
                 Path zipStartPath = zipfs.getPath("/");
                 
@@ -263,9 +316,18 @@ public class RestoreForm extends javax.swing.JFrame {
                         
                         if (!p.toString().equals("/")) {
                             if (p.getParent().toString().equals("/")) {
-                                rf.listOfSaves.add(new JCheckBox());
-                                rf.listOfSaves.get(i).setText(p.toString().replace("/", ""));
-                                i++;
+                                Path levelDatPath = zipfs.getPath(p + "level.dat");
+                                Path regionPath = zipfs.getPath(p + "region");
+                                Path playerdataPath = zipfs.getPath(p + "playerdata");
+                                if (Files.exists(levelDatPath) &&
+                                    Files.exists(regionPath) &&
+                                    Files.exists(playerdataPath)) {
+                                    // File is a valid Minecraft backup archive
+                                    rf.listOfSaves.add(new JCheckBox());
+                                    rf.listOfSaves.get(i).setText(p.toString().replace("/", ""));
+                                    i++;
+                                }
+                                
                                 
                             }
                         }
@@ -275,11 +337,52 @@ public class RestoreForm extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(RestoreForm.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+            if (rf.listOfSaves.size() == 0) {
+                this.btnBeginRestore.setEnabled(false);
+                this.txfRestoreSourceFile.setBackground(Color.PINK);
+                this.lblRestoreSourceDirections.setForeground(Color.red);
+                this.lblRestoreSourceDirections.setText("Selected file is not a valid Minecraft backup");
+            }
+            else {
+                this.txfRestoreSourceFile.setBackground(Color.white);
+                this.lblRestoreSourceDirections.setForeground(Color.black);
+                this.lblRestoreSourceDirections.setText("Select a backup file to restore from");
+                this.jcbxSelectAllSaves.setSelected(true);                
+                this.btnBeginRestore.setEnabled(true);
+            }
             this.setRestoreCheckboxes();
-            
         }
     }//GEN-LAST:event_btnSelectSourceFileMouseClicked
+
+    private void jcbxSelectAllSavesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxSelectAllSavesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcbxSelectAllSavesActionPerformed
+
+    private void jcbxSelectAllSavesItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jcbxSelectAllSavesItemStateChanged
+        if (this.jcbxSelectAllSaves.isSelected()) {
+            for (JCheckBox jc : this.listOfSaves) {
+                jc.setSelected(true);
+            }
+        }
+        else {
+            for (JCheckBox jc : this.listOfSaves) {
+                jc.setSelected(false);
+            }
+        }        
+    }//GEN-LAST:event_jcbxSelectAllSavesItemStateChanged
+
+    private void btnBeginRestoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBeginRestoreActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnBeginRestoreActionPerformed
+
+    private void btnBeginRestoreMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBeginRestoreMouseClicked
+        try {
+            // TODO add your handling code here:
+            doSavesRestore();
+        } catch (IOException ex) {
+            Logger.getLogger(RestoreForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnBeginRestoreMouseClicked
 
     /**
      * @param args the command line arguments
@@ -318,11 +421,11 @@ public class RestoreForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBeginRestore;
     private javax.swing.JButton btnSelectSourceFile;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JCheckBox jcbxSelectAllSaves;
     private javax.swing.JPanel jpnlSubSelectSavefiles;
     private javax.swing.JScrollPane jscpSelectSavefiles;
     private javax.swing.JLabel lblMbRestoreHeader;

@@ -30,8 +30,8 @@ import net.mightyteegar.MinecraftBackup.HomeForm;
 public class MinecraftBackup  {
     
     private final String SYSTEM_OS = System.getProperty("os.name");
-    private final String MCBACKUP_VERSION_NUM = "0.1";
-    private final String MCBACKUP_TITLE = "Minecraft Backup v0.1";
+    private final String MCBACKUP_VERSION_NUM = "0.2a";
+    private final String MCBACKUP_TITLE = "Minecraft Backup v" + MCBACKUP_VERSION_NUM;
     
     private String mcSavePath = new String();
     
