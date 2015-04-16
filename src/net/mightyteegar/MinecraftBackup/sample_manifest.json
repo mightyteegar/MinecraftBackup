@@ -1,0 +1,15 @@
+{
+    "backup_file" : {
+        "base_name": "MCBackup_2015-03-28",
+        "file_name": "MCBackup_2015-03-28.mcb",
+        "creation_date": "2015-03-28",
+        "compression_method": "zip",
+        "backup_file_schema": "single",
+        "save_files": [
+            {"world_name": "Terraria",
+             "world_type": "creative"},
+            {"world_name": "Arcadia",
+             "world_type": "survival"}
+        ]
+    }
+}

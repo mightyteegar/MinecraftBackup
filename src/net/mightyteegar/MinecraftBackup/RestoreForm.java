@@ -109,13 +109,16 @@ public class RestoreForm extends javax.swing.JFrame {
                                     options[1]);
                             if (opt == 0) {
                                 isOverwriteOk = true;
-                                // start restoring the savefiles
+                                
                             }
                             if (opt == 1) {
                                 break savesLoop;
                             };
                             
                                                       
+                        }
+                        if (isOverwriteOk) {
+                            
                         }
                         System.out.println("RESTORE PATH EXISTS: " + currRestorePath.toString());
                     }
