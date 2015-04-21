@@ -182,7 +182,7 @@ public class HomeForm extends javax.swing.JFrame {
 
     private void jbtnBackupFormMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnBackupFormMouseClicked
         // TODO add your handling code here:
-        new BackupForm().setVisible(true);
+        new BackupForm(this).setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jbtnBackupFormMouseClicked
 

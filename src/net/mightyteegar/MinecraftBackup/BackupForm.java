@@ -46,9 +46,10 @@ public class BackupForm extends javax.swing.JFrame {
      * Creates new form NewJFrame
      */
     
+    private HomeForm homeForm = new HomeForm();
     List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
     
-    public BackupForm() {
+    public BackupForm(HomeForm homeForm) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -73,6 +74,7 @@ public class BackupForm extends javax.swing.JFrame {
         }
         //</editor-fold>
         initComponents();
+        this.setHomeForm(homeForm);
         jprgBackupProgress.setVisible(false);
         
         MinecraftBackup mb = new MinecraftBackup();
@@ -80,13 +82,18 @@ public class BackupForm extends javax.swing.JFrame {
         setTxfSavesPathText(mb.getMcSavePath());
         setSavePathInfo(1);
         setSaveCheckboxes(mb.readSavePath());
-        
         pack();
         setLocationRelativeTo(null);  // *** this will center your app ***
-        
         setVisible(true);
         
-        
+    }
+    
+    public HomeForm getHomeForm() {
+        return homeForm;
+    }
+
+    public void setHomeForm(HomeForm homeForm) {
+        this.homeForm = homeForm;
     }
 
     public void setTxfSavesPathText(String text) {
@@ -450,6 +457,7 @@ public class BackupForm extends javax.swing.JFrame {
         chkSelectAll = new javax.swing.JCheckBox();
         lblBackupFileInfo = new javax.swing.JLabel();
         jprgBackupProgress = new javax.swing.JProgressBar();
+        jbtnGoHome = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Minecraft Backup v0.1");
@@ -570,6 +578,13 @@ public class BackupForm extends javax.swing.JFrame {
         jprgBackupProgress.setEnabled(false);
         jprgBackupProgress.setFocusable(false);
 
+        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_icon.png"))); // NOI18N
+        jbtnGoHome.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jbtnGoHomeMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -610,16 +625,20 @@ public class BackupForm extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnBackupLocation))
                             .addComponent(mbTitleImage, javax.swing.GroupLayout.PREFERRED_SIZE, 655, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 185, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
+                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addComponent(mbTitleImage, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblSavesPath)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(mbTitleImage, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblSavesPath))
+                    .addComponent(jbtnGoHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txfSavesPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -797,6 +816,13 @@ public class BackupForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnStartBackupActionPerformed
 
+    private void jbtnGoHomeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnGoHomeMouseClicked
+        // TODO add your handling code here:
+        this.homeForm.setVisible(true);
+        this.setVisible(false);
+        
+    }//GEN-LAST:event_jbtnGoHomeMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -809,6 +835,7 @@ public class BackupForm extends javax.swing.JFrame {
     private javax.swing.JButton btnStartBackup;
     private javax.swing.JComboBox cbxCompressMethod;
     private javax.swing.JCheckBox chkSelectAll;
+    private javax.swing.JButton jbtnGoHome;
     private javax.swing.JPanel jpnlSubSelectSavefiles;
     private javax.swing.JProgressBar jprgBackupProgress;
     private javax.swing.JScrollPane jscpSelectSavefiles;

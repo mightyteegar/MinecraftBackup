@@ -75,7 +75,8 @@
                           </Group>
                           <Component id="mbTitleImage" alignment="0" min="-2" pref="655" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="185" max="32767" attributes="0"/>
+                      <EmptySpace pref="93" max="32767" attributes="0"/>
+                      <Component id="jbtnGoHome" min="-2" pref="92" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -86,9 +87,14 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-              <Component id="mbTitleImage" min="-2" pref="59" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="lblSavesPath" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="mbTitleImage" min="-2" pref="59" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="lblSavesPath" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="jbtnGoHome" max="32767" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="txfSavesPath" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -329,6 +335,16 @@
         <Property name="enabled" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="jbtnGoHome">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/net/mightyteegar/MinecraftBackup/images/home_icon.png"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jbtnGoHomeMouseClicked"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

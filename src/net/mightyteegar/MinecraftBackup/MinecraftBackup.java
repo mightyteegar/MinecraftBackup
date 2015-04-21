@@ -35,7 +35,6 @@ public class MinecraftBackup  {
     
     private String mcSavePath = new String();
     
-
     public String getMcSavePath() {
         return mcSavePath;
     }
@@ -61,24 +60,6 @@ public class MinecraftBackup  {
         
         jf.setIconImage(bi);
         jf.setTitle(this.MCBACKUP_TITLE);
-    }
-    
-    public void showBackupForm(MinecraftBackup mb) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                BackupForm bf = new BackupForm();
-                bf.setVisible(true);
-            }
-        });
-    }
-    
-    public void showRestoreForm(MinecraftBackup mb) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                RestoreForm rf = new RestoreForm();
-                rf.setVisible(true);
-            }
-        });
     }
     
     public MinecraftBackup() {
@@ -135,7 +116,6 @@ public class MinecraftBackup  {
     }
     
     public boolean inspectMcSavePath(Path p) {
-        
         return true;
     }
     
