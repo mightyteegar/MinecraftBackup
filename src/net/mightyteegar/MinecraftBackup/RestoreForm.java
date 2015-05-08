@@ -145,8 +145,8 @@ public class RestoreForm extends javax.swing.JFrame {
         lblRestoreSourceDirections = new javax.swing.JLabel();
         jcbxSelectAllSaves = new javax.swing.JCheckBox();
         txfRestoreSavesPath = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jbtnBrowseRestoreTarget = new javax.swing.JButton();
+        lblRestorePathInfo = new javax.swing.JLabel();
         btnBeginRestore = new javax.swing.JButton();
         jscpSelectSavefiles = new javax.swing.JScrollPane();
         jpnlSubSelectSavefiles = new javax.swing.JPanel();
@@ -191,21 +191,31 @@ public class RestoreForm extends javax.swing.JFrame {
             }
         });
 
+        txfRestoreSavesPath.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txfRestoreSavesPathFocusLost(evt);
+            }
+        });
         txfRestoreSavesPath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txfRestoreSavesPathActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Browse");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jbtnBrowseRestoreTarget.setText("Browse");
+        jbtnBrowseRestoreTarget.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jbtnBrowseRestoreTargetMouseClicked(evt);
+            }
+        });
+        jbtnBrowseRestoreTarget.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jbtnBrowseRestoreTargetActionPerformed(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Noto Sans", 2, 12)); // NOI18N
-        jLabel1.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
+        lblRestorePathInfo.setFont(new java.awt.Font("Noto Sans", 2, 12)); // NOI18N
+        lblRestorePathInfo.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
 
         btnBeginRestore.setFont(new java.awt.Font("Noto Sans", 1, 18)); // NOI18N
         btnBeginRestore.setText("Begin Restore");
@@ -234,14 +244,14 @@ public class RestoreForm extends javax.swing.JFrame {
                     .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 679, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblRestoreSourceDirections)
-                    .addComponent(jLabel1)
+                    .addComponent(lblRestorePathInfo)
                     .addComponent(jcbxSelectAllSaves)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jscpSelectSavefiles, javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(txfRestoreSavesPath)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jbtnBrowseRestoreTarget, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,9 +279,9 @@ public class RestoreForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txfRestoreSavesPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
+                    .addComponent(jbtnBrowseRestoreTarget))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
+                .addComponent(lblRestorePathInfo)
                 .addGap(18, 18, 18)
                 .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 71, Short.MAX_VALUE))
@@ -292,9 +302,9 @@ public class RestoreForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txfRestoreSavesPathActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jbtnBrowseRestoreTargetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnBrowseRestoreTargetActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_jbtnBrowseRestoreTargetActionPerformed
 
     private void btnSelectSourceFileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSelectSourceFileMouseClicked
         // TODO add your handling code here:
@@ -387,6 +397,43 @@ public class RestoreForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnBeginRestoreMouseClicked
 
+    private void jbtnBrowseRestoreTargetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnBrowseRestoreTargetMouseClicked
+        // TODO add your handling code here:
+        JFileChooser jc = new JFileChooser();
+        jc.setPreferredSize(new Dimension(700,400));
+        jc.setDialogTitle("Minecraft saves restore location");
+        jc.setDialogType(JFileChooser.SAVE_DIALOG);
+        jc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        
+        int returnVal = jc.showSaveDialog(RestoreForm.this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            txfRestoreSavesPath.setText(jc.getSelectedFile().getAbsolutePath());
+            if (txfRestoreSavesPath.getBackground().equals(Color.pink)) {
+                txfRestoreSavesPath.setBackground(Color.white);
+                txfRestoreSavesPath.setForeground(Color.black);
+                lblRestorePathInfo.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
+            }
+        }
+        
+    }//GEN-LAST:event_jbtnBrowseRestoreTargetMouseClicked
+
+    private void txfRestoreSavesPathFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txfRestoreSavesPathFocusLost
+        // TODO add your handling code here:
+        // check the path and make sure it's valid
+        Path p = Paths.get(txfRestoreSavesPath.getText());
+        if (!Files.exists(p)) {
+            txfRestoreSavesPath.setBackground(Color.PINK);
+            txfRestoreSavesPath.setForeground(Color.red);
+            lblRestorePathInfo.setText("Path does not exist, choose a different location");
+        }
+        else {
+            txfRestoreSavesPath.setBackground(Color.white);
+            txfRestoreSavesPath.setForeground(Color.black);
+            lblRestorePathInfo.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
+        }
+    }//GEN-LAST:event_txfRestoreSavesPathFocusLost
+
     /**
      * @param args the command line arguments
      */
@@ -426,13 +473,13 @@ public class RestoreForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBeginRestore;
     private javax.swing.JButton btnSelectSourceFile;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton jbtnBrowseRestoreTarget;
     private javax.swing.JCheckBox jcbxSelectAllSaves;
     private javax.swing.JPanel jpnlSubSelectSavefiles;
     private javax.swing.JScrollPane jscpSelectSavefiles;
     private javax.swing.JLabel lblMbRestoreHeader;
     private javax.swing.JLabel lblRestoreDescription;
+    private javax.swing.JLabel lblRestorePathInfo;
     private javax.swing.JLabel lblRestoreSourceDirections;
     private javax.swing.JTextField txfRestoreSavesPath;
     private javax.swing.JTextField txfRestoreSourceFile;
