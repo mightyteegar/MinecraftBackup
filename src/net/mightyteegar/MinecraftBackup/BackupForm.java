@@ -296,6 +296,8 @@ public class BackupForm extends javax.swing.JFrame {
                     }
                 }
                 
+                backupMonitor.preCountFiles(filesList);
+                
                 for (String f:filesList) {
                     String fRel = f.replace(this.getSavesLocation().toString() + File.separator,"");
                     System.out.println("INPUT FILE: " + fRel);
@@ -308,8 +310,9 @@ public class BackupForm extends javax.swing.JFrame {
                         zos.write(buffer,0,size);
                     }
                     zos.flush();
+                    backupMonitor.setRunningFileCount(1);
                     try {
-                        jobQueue.put(1);
+                        this.jobQueue.put(1);
                     }
                     catch (Exception e) {
                         // catch!
@@ -336,9 +339,6 @@ public class BackupForm extends javax.swing.JFrame {
         
 
         public void run() {
-            
-            backupMonitor.preCountFiles(this.getSavesLocation().toFile());
-            // pass total files to jobQueue
             
             while (jobQueue.isRunning()) {
                 System.out.println("ZIPPATH: " + this.getBackupFilePath());
@@ -412,25 +412,9 @@ public class BackupForm extends javax.swing.JFrame {
             this.runningFileCount += increment;
         }
         
-        public int preCountFiles(File fileStartPath) {
+        public int preCountFiles(List filesList) {
             
-            int count = 0;
-            for (File file : fileStartPath.listFiles()) {
-
-                if (file.isFile()) {
-                    count++;
-                }
-                if (file.isDirectory()) {
-                    if (!file.canExecute()) {
-                      System.out.println(file.getAbsolutePath() + ": Error, access denied to this directory");
-                      // skip it
-                    }
-                    else {
-                        count += preCountFiles(file);
-                    }
-                }
-            }
-                        
+            int count = filesList.size();
             progressBar.setIndeterminate(false);
             progressBar.setMaximum(count);
             progressBar.setStringPainted(true);
