@@ -8,6 +8,8 @@ package net.mightyteegar.MinecraftBackup;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -27,6 +29,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -244,74 +248,97 @@ public class BackupForm extends javax.swing.JFrame {
             this.backupMonitor = backupMonitor;
         }
         
-          
+            
         public void kill() {
             jobQueue.stopRunning();
         }
         
-        public FileVisitResult preVisitDirectory(Path p, BasicFileAttributes attrs) throws IOException {
-
-            Path zipFilePath = Paths.get(this.getBackupFilePath());
-            URI zipUri = URI.create("jar:" + zipFilePath.toUri().toString());
-            Map<String, String> env = new HashMap<>();
-            env.put("create", "true");
-
-            if (p.equals(this.getSavesLocation())) {
-                // don't do anything
-            }
-            else {
-                String pathToAdd = p.toString().replace(this.getSavesLocation().toString(), "").replace("\\", "/");
-                try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
-                    Path p1 = zipfs.getPath(pathToAdd);
-                    Files.createDirectories(p1);
-                    
-                }
-                
-            }
-
-            return CONTINUE;
-        }
-
-        public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
-
-            Path zipFilePath = Paths.get(this.getBackupFilePath());
-            URI zipUri = URI.create("jar:" + zipFilePath.toUri().toString());
-            Map<String, String> env = new HashMap<>();
-            env.put("create", "true");
+        protected void walkSavesFileDir(File startDir, List filesList) {
             
-            System.out.println("SOURCE DIR: " + p.toString());
-
-            if (p.equals(this.getSavesLocation())) {
-                // don't do anything
+            for (File thisFile : startDir.listFiles()) {
+                
+                if (thisFile.isFile()) {
+                    filesList.add(thisFile.getAbsolutePath());
+                }
+                else if (thisFile.isDirectory()) {
+                    walkSavesFileDir(thisFile,filesList);
+                }
+                else {
+                    // some other file type, ignore
+                }
             }
-            else {
-                if (Files.isRegularFile(p)) {
-                    String pathToAdd = p.toString().replace(this.getSavesLocation().toString(), "").replace("\\", "/");
-                    try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
-                        Path p1 = zipfs.getPath(pathToAdd);
-                        if (Files.exists(p1)) {
-                            Files.delete(p1);
-                        }
-                        Files.copy(p,p1);
-                        backupMonitor.setRunningFileCount(1);
-                        
-                        try {
-                            this.jobQueue.put(1);
-                        } catch (InterruptedException ex) {}
-
+            
+        }
+               
+        public void performBackup() {
+            String backupZipTarget = this.getBackupFilePath();
+            List<String> filesList = new ArrayList();
+            FileOutputStream fos = null;
+            ZipOutputStream zos = null;
+            FileInputStream fis = null;
+            
+            try {
+                fos = new FileOutputStream(backupZipTarget);
+                zos = new ZipOutputStream(fos);
+                
+                for (JCheckBox save: listOfSaves) {
+                    String saveName = save.getText();
+                    
+                    if (save.isSelected()) {
+                        System.out.println("SAVENAME " + saveName + " is selected");
+                        File startPath = new File(this.getSavesLocation().toString() + File.separator + save.getText());
+                        System.out.println(startPath.toString());
+                        walkSavesFileDir(startPath,filesList);
+                    }
+                    
+                    else {
+                        System.out.println("SAVENAME " + saveName + " is NOT selected");
                     }
                 }
-
-
+                
+                backupMonitor.preCountFiles(filesList);
+                
+                for (String f:filesList) {
+                    String fRel = f.replace(this.getSavesLocation().toString() + File.separator,"");
+                    System.out.println("INPUT FILE: " + fRel);
+                    fis = new FileInputStream(f);
+                    ZipEntry ze = new ZipEntry(fRel);
+                    zos.putNextEntry(ze);
+                    byte[] buffer = new byte[4*1024];
+                    int size = 0;
+                    while ((size = fis.read(buffer)) != -1) {
+                        zos.write(buffer,0,size);
+                    }
+                    zos.flush();
+                    backupMonitor.setRunningFileCount(1);
+                    try {
+                        this.jobQueue.put(1);
+                    }
+                    catch (Exception e) {
+                        // catch!
+                    }
+                }
+                
+                zos.close();
+                
             }
-
-            return CONTINUE;
+            
+            catch (Exception e) {
+                // catch!
+            }
+            
+            finally {
+                try {
+                    if (fos != null) fos.close();
+                    if (fis != null) fis.close();
+                }
+                catch (IOException e) {}
+            }
+        
         }
+        
 
         public void run() {
-            
-            backupMonitor.preCountFiles(this.getSavesLocation().toFile());
-            // pass total files to jobQueue
             
             while (jobQueue.isRunning()) {
                 System.out.println("ZIPPATH: " + this.getBackupFilePath());
@@ -333,11 +360,12 @@ public class BackupForm extends javax.swing.JFrame {
 
                     try {
                         synchronized (backupMonitor) {
-                            Files.walkFileTree(this.getSavesLocation(), this);
+                            // new zip method here
+                            performBackup();
                         }
                         
 
-                    } catch (IOException ex) {} 
+                    } catch (Exception ex) {} 
                     jobQueue.stopRunning();
 
                 }
@@ -384,25 +412,9 @@ public class BackupForm extends javax.swing.JFrame {
             this.runningFileCount += increment;
         }
         
-        public int preCountFiles(File fileStartPath) {
+        public int preCountFiles(List filesList) {
             
-            int count = 0;
-            for (File file : fileStartPath.listFiles()) {
-
-                if (file.isFile()) {
-                    count++;
-                }
-                if (file.isDirectory()) {
-                    if (!file.canExecute()) {
-                      System.out.println(file.getAbsolutePath() + ": Error, access denied to this directory");
-                      // skip it
-                    }
-                    else {
-                        count += preCountFiles(file);
-                    }
-                }
-            }
-                        
+            int count = filesList.size();
             progressBar.setIndeterminate(false);
             progressBar.setMaximum(count);
             progressBar.setStringPainted(true);
