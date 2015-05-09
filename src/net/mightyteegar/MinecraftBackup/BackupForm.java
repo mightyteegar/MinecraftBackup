@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
         
 
@@ -480,14 +483,13 @@ public class BackupForm extends javax.swing.JFrame {
         lblSavesPath.setText("Minecraft Saves Path");
 
         txfSavesPath.setText("minecraft backup path");
+        txfSavesPath.setToolTipText("Choose the location of your Minecraft save files.");
         txfSavesPath.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 txfSavesPathFocusGained(evt);
             }
-        });
-        txfSavesPath.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txfSavesPathActionPerformed(evt);
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txfSavesPathFocusLost(evt);
             }
         });
 
@@ -529,6 +531,7 @@ public class BackupForm extends javax.swing.JFrame {
         lblBackupLocation.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         lblBackupLocation.setText("Backup file(s) location");
 
+        txfBackupLocation.setToolTipText("Location for your Minecraft backup file.  ");
         txfBackupLocation.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 txfBackupLocationFocusGained(evt);
@@ -701,10 +704,6 @@ public class BackupForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnChangeSavepathActionPerformed
 
-    private void txfSavesPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txfSavesPathActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txfSavesPathActionPerformed
-
     private void rdoArchCompressAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoArchCompressAllActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_rdoArchCompressAllActionPerformed
@@ -760,9 +759,34 @@ public class BackupForm extends javax.swing.JFrame {
     private void btnBackupLocationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBackupLocationMouseClicked
         // TODO add your handling code here:
         JFileChooser jc = new JFileChooser();
+        FileFilter saveFilter = new FileNameExtensionFilter("Minecraft backup files (.mcbackup .zip)","ZIP","zip","mcbackup");
+        
+        // set default file name based on date
+        
+        Calendar cal = Calendar.getInstance();
+    
+        Integer year = cal.get(Calendar.YEAR);
+        String strYear = year.toString();
+        Integer month = cal.get(Calendar.MONTH);
+        String strMonth = new String(month.toString());
+        if (month < 10) strMonth = "0" + strMonth;
+        Integer day = cal.get(Calendar.DAY_OF_MONTH);
+        String strDay = new String(day.toString());
+        if (day < 10) strDay = "0" + strDay;
+        Integer hour = cal.get(Calendar.HOUR_OF_DAY);
+        String strHour = new String(hour.toString());
+        if (hour < 10) strHour = "0" + strHour;
+        Integer minute = cal.get(Calendar.MINUTE);
+        String strMinute = new String(minute.toString());
+        if (minute < 10) strMinute = "0" + strMinute;
+
+        String defaultFileName = "mcbackup_" + strYear + strMonth + strDay + "_" + strHour + strMinute + ".mcbackup";
+        
         jc.setPreferredSize(new Dimension(700,400));
         jc.setDialogTitle("Minecraft backup archive location");
         jc.setDialogType(JFileChooser.SAVE_DIALOG);
+        jc.setFileFilter(saveFilter);
+        jc.setSelectedFile(new File(defaultFileName));
         jc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         
         int returnVal = jc.showSaveDialog(BackupForm.this);
@@ -834,6 +858,10 @@ public class BackupForm extends javax.swing.JFrame {
         this.setVisible(false);
         
     }//GEN-LAST:event_jbtnGoHomeMouseClicked
+
+    private void txfSavesPathFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txfSavesPathFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txfSavesPathFocusLost
 
     /**
      * @param args the command line arguments

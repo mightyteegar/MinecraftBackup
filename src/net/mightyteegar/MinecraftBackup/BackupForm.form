@@ -159,10 +159,11 @@
     <Component class="javax.swing.JTextField" name="txfSavesPath">
       <Properties>
         <Property name="text" type="java.lang.String" value="minecraft backup path"/>
+        <Property name="toolTipText" type="java.lang.String" value="Choose the location of your Minecraft save files."/>
       </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txfSavesPathFocusGained"/>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txfSavesPathActionPerformed"/>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txfSavesPathFocusLost"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnChangeSavepath">
@@ -244,6 +245,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txfBackupLocation">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Location for your Minecraft backup file.  "/>
+      </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txfBackupLocationFocusGained"/>
       </Events>
