@@ -15,6 +15,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -40,6 +41,7 @@ import javax.swing.JPanel;
  */
 public class RestoreForm extends javax.swing.JFrame {
     
+    private HomeForm homeForm = new HomeForm();
     List<JCheckBox> listOfSaves = new ArrayList<JCheckBox>();
     RestoreForm rf = this;
 
@@ -150,6 +152,7 @@ public class RestoreForm extends javax.swing.JFrame {
         btnBeginRestore = new javax.swing.JButton();
         jscpSelectSavefiles = new javax.swing.JScrollPane();
         jpnlSubSelectSavefiles = new javax.swing.JPanel();
+        jbtnGoHome = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -217,7 +220,7 @@ public class RestoreForm extends javax.swing.JFrame {
         lblRestorePathInfo.setFont(new java.awt.Font("Noto Sans", 2, 12)); // NOI18N
         lblRestorePathInfo.setText("(Optional) Choose a directory to restore to; defaults to your Minecraft profile folder");
 
-        btnBeginRestore.setFont(new java.awt.Font("Noto Sans", 1, 18)); // NOI18N
+        btnBeginRestore.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         btnBeginRestore.setText("Begin Restore");
         btnBeginRestore.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -234,6 +237,13 @@ public class RestoreForm extends javax.swing.JFrame {
         jpnlSubSelectSavefiles.setLayout(new javax.swing.BoxLayout(jpnlSubSelectSavefiles, javax.swing.BoxLayout.PAGE_AXIS));
         jscpSelectSavefiles.setViewportView(jpnlSubSelectSavefiles);
 
+        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_icon.png"))); // NOI18N
+        jbtnGoHome.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jbtnGoHomeMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -241,35 +251,47 @@ public class RestoreForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 679, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblRestoreSourceDirections)
-                    .addComponent(lblRestorePathInfo)
-                    .addComponent(jcbxSelectAllSaves)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jscpSelectSavefiles, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(txfRestoreSavesPath)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jbtnBrowseRestoreTarget, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 679, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(lblRestoreDescription, javax.swing.GroupLayout.Alignment.LEADING))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnSelectSourceFile, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(173, Short.MAX_VALUE))
+                                .addComponent(jscpSelectSavefiles, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(txfRestoreSavesPath)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jbtnBrowseRestoreTarget, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblRestoreDescription, javax.swing.GroupLayout.Alignment.LEADING))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(btnSelectSourceFile, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
+                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblRestoreSourceDirections)
+                            .addComponent(lblRestorePathInfo)
+                            .addComponent(jcbxSelectAllSaves))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblRestoreDescription)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSelectSourceFile)
-                    .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblMbRestoreHeader, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblRestoreDescription)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnSelectSourceFile)
+                            .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblRestoreSourceDirections)
                 .addGap(18, 18, 18)
@@ -324,11 +346,15 @@ public class RestoreForm extends javax.swing.JFrame {
                 Path zipStartPath = zipfs.getPath("/");
                 
                 Files.walkFileTree(zipStartPath, new SimpleFileVisitor<Path>() {
-                    int i = 0;                   
+                    
+                    int i = 0;
+                    
                     public FileVisitResult preVisitDirectory(Path p, BasicFileAttributes attrs) {
                         
                         if (!p.toString().equals("/")) {
+                            
                             if (p.getParent().toString().equals("/")) {
+                                
                                 Path levelDatPath = zipfs.getPath(p + "level.dat");
                                 Path regionPath = zipfs.getPath(p + "region");
                                 Path playerdataPath = zipfs.getPath(p + "playerdata");
@@ -346,8 +372,20 @@ public class RestoreForm extends javax.swing.JFrame {
                         }
                         return CONTINUE; 
                     }
+                    
+                    public FileVisitResult visitFileFailed(Path p, IOException e) {
+                        System.out.println(p.toString() + ": File visit failed, attempting to continue...");
+                        return CONTINUE;
+                    }
             });
-            } catch (IOException ex) {
+            } 
+            catch (NoSuchFileException nfe) {
+                System.out.println("No such file exception found");
+                Logger.getLogger(RestoreForm.class.getName()).log(Level.SEVERE, null, nfe);
+                // continue
+            }
+            catch (IOException ex) {
+                System.out.println("ERROR");
                 Logger.getLogger(RestoreForm.class.getName()).log(Level.SEVERE, null, ex);
             }
             if (rf.listOfSaves.size() == 0) {
@@ -434,6 +472,13 @@ public class RestoreForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_txfRestoreSavesPathFocusLost
 
+    private void jbtnGoHomeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jbtnGoHomeMouseClicked
+        // TODO add your handling code here:
+        this.homeForm.setVisible(true);
+        this.setVisible(false);
+
+    }//GEN-LAST:event_jbtnGoHomeMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -474,6 +519,7 @@ public class RestoreForm extends javax.swing.JFrame {
     private javax.swing.JButton btnBeginRestore;
     private javax.swing.JButton btnSelectSourceFile;
     private javax.swing.JButton jbtnBrowseRestoreTarget;
+    private javax.swing.JButton jbtnGoHome;
     private javax.swing.JCheckBox jcbxSelectAllSaves;
     private javax.swing.JPanel jpnlSubSelectSavefiles;
     private javax.swing.JScrollPane jscpSelectSavefiles;
