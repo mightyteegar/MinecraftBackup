@@ -593,7 +593,7 @@ public class BackupForm extends javax.swing.JFrame {
         jprgBackupProgress.setEnabled(false);
         jprgBackupProgress.setFocusable(false);
 
-        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_icon.png"))); // NOI18N
+        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_crafttable.png"))); // NOI18N
         jbtnGoHome.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jbtnGoHomeMouseClicked(evt);
@@ -767,20 +767,24 @@ public class BackupForm extends javax.swing.JFrame {
     
         Integer year = cal.get(Calendar.YEAR);
         String strYear = year.toString();
+        
         Integer month = cal.get(Calendar.MONTH);
         String strMonth = new String(month.toString());
         if (month < 10) strMonth = "0" + strMonth;
+        
         Integer day = cal.get(Calendar.DAY_OF_MONTH);
         String strDay = new String(day.toString());
         if (day < 10) strDay = "0" + strDay;
+        
         Integer hour = cal.get(Calendar.HOUR_OF_DAY);
         String strHour = new String(hour.toString());
         if (hour < 10) strHour = "0" + strHour;
+        
         Integer minute = cal.get(Calendar.MINUTE);
         String strMinute = new String(minute.toString());
         if (minute < 10) strMinute = "0" + strMinute;
 
-        String defaultFileName = "mcbackup_" + strYear + strMonth + strDay + "_" + strHour + strMinute + ".mcbackup";
+        String defaultFileName = "mcbackup-" + strYear + strMonth + strDay + "_" + strHour + strMinute + ".mcbackup";
         
         jc.setPreferredSize(new Dimension(700,400));
         jc.setDialogTitle("Minecraft backup archive location");
