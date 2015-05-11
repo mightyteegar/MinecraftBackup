@@ -237,10 +237,15 @@ public class RestoreForm extends javax.swing.JFrame {
         jpnlSubSelectSavefiles.setLayout(new javax.swing.BoxLayout(jpnlSubSelectSavefiles, javax.swing.BoxLayout.PAGE_AXIS));
         jscpSelectSavefiles.setViewportView(jpnlSubSelectSavefiles);
 
-        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_icon.png"))); // NOI18N
+        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_crafttable.png"))); // NOI18N
         jbtnGoHome.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jbtnGoHomeMouseClicked(evt);
+            }
+        });
+        jbtnGoHome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnGoHomeActionPerformed(evt);
             }
         });
 
@@ -478,6 +483,10 @@ public class RestoreForm extends javax.swing.JFrame {
         this.setVisible(false);
 
     }//GEN-LAST:event_jbtnGoHomeMouseClicked
+
+    private void jbtnGoHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnGoHomeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbtnGoHomeActionPerformed
 
     /**
      * @param args the command line arguments
