@@ -237,10 +237,18 @@ public class RestoreForm extends javax.swing.JFrame {
         jpnlSubSelectSavefiles.setLayout(new javax.swing.BoxLayout(jpnlSubSelectSavefiles, javax.swing.BoxLayout.PAGE_AXIS));
         jscpSelectSavefiles.setViewportView(jpnlSubSelectSavefiles);
 
-        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_icon.png"))); // NOI18N
+        jbtnGoHome.setIcon(new javax.swing.ImageIcon(getClass().getResource("/net/mightyteegar/MinecraftBackup/images/home_crafttable.png"))); // NOI18N
+        jbtnGoHome.setMaximumSize(new java.awt.Dimension(52, 52));
+        jbtnGoHome.setMinimumSize(new java.awt.Dimension(52, 52));
+        jbtnGoHome.setPreferredSize(new java.awt.Dimension(52, 52));
         jbtnGoHome.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jbtnGoHomeMouseClicked(evt);
+            }
+        });
+        jbtnGoHome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnGoHomeActionPerformed(evt);
             }
         });
 
@@ -291,8 +299,8 @@ public class RestoreForm extends javax.swing.JFrame {
                             .addComponent(txfRestoreSourceFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addComponent(lblRestoreSourceDirections)
                 .addGap(18, 18, 18)
                 .addComponent(jcbxSelectAllSaves)
@@ -306,7 +314,7 @@ public class RestoreForm extends javax.swing.JFrame {
                 .addComponent(lblRestorePathInfo)
                 .addGap(18, 18, 18)
                 .addComponent(btnBeginRestore, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 71, Short.MAX_VALUE))
+                .addGap(0, 59, Short.MAX_VALUE))
         );
 
         pack();
@@ -478,6 +486,10 @@ public class RestoreForm extends javax.swing.JFrame {
         this.setVisible(false);
 
     }//GEN-LAST:event_jbtnGoHomeMouseClicked
+
+    private void jbtnGoHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnGoHomeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbtnGoHomeActionPerformed
 
     /**
      * @param args the command line arguments
