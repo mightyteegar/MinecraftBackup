@@ -302,7 +302,8 @@ public class BackupForm extends javax.swing.JFrame {
                 backupMonitor.preCountFiles(filesList);
                 
                 for (String f:filesList) {
-                    String fRel = f.replace(this.getSavesLocation().toString() + File.separator,"");
+                    String fRel = f.replace(this.getSavesLocation().toString() + File.separator, "");
+                    fRel = fRel.replace(File.separator, "/");
                     System.out.println("INPUT FILE: " + fRel);
                     fis = new FileInputStream(f);
                     ZipEntry ze = new ZipEntry(fRel);
@@ -550,6 +551,7 @@ public class BackupForm extends javax.swing.JFrame {
             }
         });
 
+        btnStartBackup.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         btnStartBackup.setText("Start backup");
         btnStartBackup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -647,13 +649,14 @@ public class BackupForm extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jbtnGoHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(mbTitleImage, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblSavesPath))
-                    .addComponent(jbtnGoHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(17, 17, 17)
+                        .addComponent(lblSavesPath)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txfSavesPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
